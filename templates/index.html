@@ -1,0 +1,84 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Crime Rate Predictor</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Crime Rate Predictor</h1>
+
+    <label>Select State:</label>
+    <select id="stateSelect" onchange="loadCities()">
+        <option value="">--Select--</option>
+        <option>Uttar Pradesh</option>
+        <option>Maharashtra</option>
+        <option>Bihar</option>
+        <option>West Bengal</option>
+        <option>Madhya Pradesh</option>
+        <option>Rajasthan</option>
+        <option>Tamil Nadu</option>
+        <option>Karnataka</option>
+    </select>
+
+    <label>Select City:</label>
+    <select id="citySelect">
+        <option value="">--Select--</option>
+    </select>
+
+    <label>Select Crime Type:</label>
+    <select id="crimeSelect">
+        <option>Theft</option>
+        <option>Robbery</option>
+        <option>Assault</option>
+        <option>Rape</option>
+        <option>Murder</option>
+        <option>Kidnapping</option>
+        <option>Cyber Crime</option>
+        <option>Domestic Violence</option>
+    </select>
+
+    <button onclick="predictCrime()">Predict</button>
+
+    <div id="output"></div>
+
+    <script>
+        function loadCities() {
+            const state = document.getElementById("stateSelect").value;
+            axios.post('/get_cities', { state })
+                .then(response => {
+                    const citySelect = document.getElementById("citySelect");
+                    citySelect.innerHTML = "";
+                    response.data.forEach(city => {
+                        const opt = document.createElement("option");
+                        opt.value = city;
+                        opt.innerHTML = city;
+                        citySelect.appendChild(opt);
+                    });
+                });
+        }
+
+        function predictCrime() {
+            const state = document.getElementById("stateSelect").value;
+            const city = document.getElementById("citySelect").value;
+            const crime = document.getElementById("crimeSelect").value;
+
+            axios.post('/predict', { state, city, crime })
+                .then(res => {
+                    const { predictions, years, status } = res.data;
+                    let output = `<h3>Status: <span style="color:${status === 'Safe' ? 'green' : 'red'}">${status}</span></h3>`;
+                    output += `<table border="1"><tr><th>Year</th><th>Predicted ${crime}</th></tr>`;
+                    for (let i = 0; i < years.length; i++) {
+                        output += `<tr><td>${years[i]}</td><td>${predictions[i]}</td></tr>`;
+                    }
+                    output += "</table>";
+                    document.getElementById("output").innerHTML = output;
+                })
+                .catch(err => {
+                    document.getElementById("output").innerHTML = "Error: " + err.response.data.error;
+                });
+        }
+    </script>
+</body>
+</html>
