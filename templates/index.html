@@ -76,7 +76,8 @@
                     document.getElementById("output").innerHTML = output;
                 })
                 .catch(err => {
-                    document.getElementById("output").innerHTML = "Error: " + err.response.data.error;
+                    const message = err.response?.data?.error || "Something went wrong. Please try again.";
+                    document.getElementById("output").innerHTML = "Error: " + message;
                 });
         }
     </script>
