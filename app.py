@@ -1,7 +1,6 @@
 # app.py
 from flask import Flask, request, jsonify, render_template
 import pandas as pd
-import joblib
 from sklearn.linear_model import LinearRegression
 from flask_cors import CORS
 
